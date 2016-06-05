@@ -19,15 +19,14 @@
  - Cross-Plat
  - Statically typed, ect, ect
  - and if you address Scala users, you might (although I don't use/know it) stress on functional first (scala is not functional first but rather multiparadigm) and pervasive type inference
-***
- - Compared to Clojure - type system and things like Scott's DDD posts/slides could be beneficial
- - https://www.quora.com/Is-F-F-Sharp-better-than-Scala-If-so-why?share=1
- - http://techneilogy.blogspot.fr/2012/01/f-vs-scala-my-take-at-year-two.html
+' Compared to Clojure - type system and things like Scott's DDD posts/slides could be beneficial
+' https://www.quora.com/Is-F-F-Sharp-better-than-Scala-If-so-why?share=1
+' http://techneilogy.blogspot.fr/2012/01/f-vs-scala-my-take-at-year-two.html
  
 ### What I use it for
  - Presenting at meetups
     - FsReveal, show markdown, code samples
-
+'TCBay
 ### Syntax
  - Two keywords story, type/let
  - DU , ADT  
@@ -35,11 +34,15 @@
 ### Features/What it enables
  - DDD / DSLs
  - DU
+ - Computation expressions
+ - Immutable by default
+' Pragmatic
+' Do the boring work
 --- 
 
-Domains used
+### Domains used
 
-###.NET ecosystem
+### .NET ecosystem
  - Where does it fit in
   - Ivory tower
 
@@ -48,6 +51,8 @@ Domains used
 ### How to get started
 ### Resources
  - FSharp.org
+ - C4FSharp
+ - fsharpforfunandprofit
 
 ### Demo
 
@@ -148,39 +153,18 @@ Domains used
  
     [lang=scala]
     object Pi {
-    class PiIterator extends Iterable[BigInt]{
-        var r:BigInt=0
-        var q, t, k:BigInt=1
-        var n, l:BigInt=3
-        var nr, nn:BigInt=0
-    
-        def iterator: Iterator[BigInt]=new Iterator[BigInt]{
-        def hasNext=true
-        def next():BigInt={
-            while((4*q+r-t) >= (n*t)) {
-            nr = (2*q+r)*l
-            nn = (q*(7*k)+2+(r*l))/(t*l)
-            q = q * k
-            t = t * l
-            l = l + 2
-            k = k + 1
-            n  = nn
-            r  = nr			
-            }
-            val ret=n
-            nr = 10*(r-n*t)
-            n  = ((10*(3*q+r))/t)-(10*n)
-            q  = q * 10
-            r  = nr
-            ret
+        class PiIterator extends Iterable[BigInt]{
+            var r:BigInt=0
+            var q, t, k:BigInt=1
+            var n, l:BigInt=3
+            var nr, nn:BigInt=0
+            //...
         }
+        
+        def main(args: Array[String]): Unit = {
+            val it=new PiIterator
+            println((it head) + "." + (it take 300 mkString))
         }
-    }
-    
-    def main(args: Array[String]): Unit = {
-        val it=new PiIterator
-        println((it head) + "." + (it take 300 mkString))
-    }
     }
 ---
 
@@ -198,27 +182,19 @@ Domains used
 
 ---
 #### Q
-
-- Death Star
  
     [lang=q]
     w:400; h:300; r:150; l:-0.5 0.7 0.5
     sqrt0:{$[x>0;sqrt x;0]};
-    
-    / get x,y,z position of point on sphere given x,y,r
-    
+  
     z:{[x;y;r]sqrt0((r*r)-((x*x)+(y*y)))};
-    
-    / get diffused light at point on sphere
-    
+ 
     is:{[x;y;r]
     z0:z[x;y;r];
     s:(x;y;z0)%r;
     $[z0>0;i:0.5*1+(+/)(s*l);i:0];
     i};
-    
-    / get pixel value at given image position
-    
+
     fcn:{[xpx;ypx]
     x:xpx-w%2;
     y:ypx-h%2;
@@ -226,34 +202,18 @@ Domains used
     x2:x+190;
     z2:170-z[x2;y;r];
     $[(r*r)<((x*x)+(y*y));
-        $[y>-50;
-            i:3#0;
-            i:200 100 50];
-        $[z2>z1;
-            i:3#is[x;y;r]*140;
-            i:3#is[(-1*x2);(-1*y);r]*120]
+        $[y>-50;i:3#0;i:200 100 50];
+        $[z2>z1;i:3#is[x;y;r]*140;i:3#is[(-1*x2);(-1*y);r]*120]
     ];
     "i"$i};
-    
-    / do it ...
     
     \l bmp.q
     fn:`:demo.bmp;
     writebmp[w;h;fcn;fn];
-
-    ![Deathstar](http://rosettacode.org/mw/images/8/83/Qdstar.jpg)
 ---
 
-### Paket
+![Deathstar](http://rosettacode.org/mw/images/8/83/Qdstar.jpg)
 
-    [lang=paket]
-    source https://nuget.org/api/v2
-
-    nuget Castle.Windsor-log4net >= 3.2
-    nuget NUnit
-    
-    github forki/FsUnit FsUnit.fs
-        
 ---
 
 ### Bayes' Rule in LaTeX
