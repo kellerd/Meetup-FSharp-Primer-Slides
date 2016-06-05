@@ -88,4 +88,60 @@ build
 
 git checkout 3-Docs
 build KeepRunning
-firefox C:\Users\KELLERD\Documents\GitHub\Meetup-FSharp-Primer-TypeProvider\docs\output\index.html
+chrome file:///C:/Users/diese/Source/Repos/Meetup-FSharp-Primer-TypeProvider/docs/output/index.html
+open index.fsx
+Change path to : 
+  #r "TicTacToeProvider/TicTacToeProvider.dll"
+open tutorial.fsx
+Change path to : 
+  #r "TicTacToeProvider/TicTacToeProvider.dll"
+  
+open index.fsx - Change to:
+
+let libresult = Library.hello 10
+printfn "hello = %i" libresult 
+
+let result = Library.tryFactorial 5 |> Option.get 
+
+open generate.fsx - add 
+let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
+add 
+        ?fsiEvaluator = fsiEvaluator.Value  
+to end of both  Literate.ProcessDirectory
+
+open index.fsx - add
+
+(*** define-output:test ***)
+Library.hello 10
+|> printfn "hello = %i" 
+
+(** The result of the previous snippet is: *)
+(*** include-output:test ***)
+
+build KeepRunning
+
+add the following and refresh
+
+let result = Library.tryFactorial 5 |> Option.get 
+
+(** And the variable `result` has the following value: *)
+(*** include-value: result ***)
+
+Open Library.fs - add
+
+  /// ## Example
+  ///
+  ///     let facTimes5 = tryFactorial 0 |> Option.map ((*) 5) |> Option.iter (printfn "%A") 
+  ///     printfn "%A" facTimes5
+  ///
+  /// Returns n! or n*n-1*n-2... where n >= 0
+  /// ## Parameters
+  ///  - `n` - parameter to factorial
+  ///
+  
+  //build GenerateReferenceDocs
+  build ReleaseDocs
+
+chrome http://kellerd.github.io/TicTacToeProvider/
+  
+git checkout 3-Paket
