@@ -1,10 +1,55 @@
-- title : FsReveal
-- description : Introduction to FsReveal
-- author : Karlkim Suwanmongkol
+- title : F# Primer
+- description : Introduction to F#
+- author : Dan Keller
 - theme : night
 - transition : default
 
 ***
+
+### FSharp
+
+ - Since 200X
+ - Don Syme
+ - you can present F# as descendant of OCaml with great integration story with .net ecosystem and some "cutting edge" features (type providers, computation expressions are the main obvious one)
+    - 
+ - FSharp Foundation, not microsoft
+***
+
+ - Open Source Since 201X
+ - Cross-Plat
+ - Statically typed, ect, ect
+ - and if you address Scala users, you might (although I don't use/know it) stress on functional first (scala is not functional first but rather multiparadigm) and pervasive type inference
+***
+ - Compared to Clojure - type system and things like Scott's DDD posts/slides could be beneficial
+ - https://www.quora.com/Is-F-F-Sharp-better-than-Scala-If-so-why?share=1
+ - http://techneilogy.blogspot.fr/2012/01/f-vs-scala-my-take-at-year-two.html
+ 
+### What I use it for
+ - Presenting at meetups
+    - FsReveal, show markdown, code samples
+
+### Syntax
+ - Two keywords story, type/let
+ - DU , ADT  
+
+### Features/What it enables
+ - DDD / DSLs
+ - DU
+--- 
+
+Domains used
+
+###.NET ecosystem
+ - Where does it fit in
+  - Ivory tower
+
+### Open Source Projects/Community
+
+### How to get started
+### Resources
+ - FSharp.org
+
+### Demo
 
 ### What is FsReveal?
 
@@ -99,17 +144,104 @@
 *code from [NashFP/rosalind](https://github.com/NashFP/rosalind/blob/master/mark_wutka%2Bhaskell/FIB/fib_ziplist.hs)*
 
 ---
+#### Scala
+ 
+    [lang=scala]
+    object Pi {
+    class PiIterator extends Iterable[BigInt]{
+        var r:BigInt=0
+        var q, t, k:BigInt=1
+        var n, l:BigInt=3
+        var nr, nn:BigInt=0
+    
+        def iterator: Iterator[BigInt]=new Iterator[BigInt]{
+        def hasNext=true
+        def next():BigInt={
+            while((4*q+r-t) >= (n*t)) {
+            nr = (2*q+r)*l
+            nn = (q*(7*k)+2+(r*l))/(t*l)
+            q = q * k
+            t = t * l
+            l = l + 2
+            k = k + 1
+            n  = nn
+            r  = nr			
+            }
+            val ret=n
+            nr = 10*(r-n*t)
+            n  = ((10*(3*q+r))/t)-(10*n)
+            q  = q * 10
+            r  = nr
+            ret
+        }
+        }
+    }
+    
+    def main(args: Array[String]): Unit = {
+        val it=new PiIterator
+        println((it head) + "." + (it take 300 mkString))
+    }
+    }
+---
 
-### SQL
+#### Clojure
+ 
+    [lang=clojure]
+    (defn ints-from [n]
+    (cons n (lazy-seq (ints-from (inc n)))))
+    
+    (defn drop-nth [n seq] 
+    (cond 
+        (zero?    n) seq
+        (empty? seq) []
+        :else (concat (take (dec n) seq) (lazy-seq (drop-nth n (drop n seq))))))
 
-    [lang=sql]
-    select *
-    from
-    (select 1 as Id union all select 2 union all select 3) as X
-    where Id in (@Ids1, @Ids2, @Ids3)
+---
+#### Q
 
-*sql from [Dapper](https://code.google.com/p/dapper-dot-net/)*
+- Death Star
+ 
+    [lang=q]
+    w:400; h:300; r:150; l:-0.5 0.7 0.5
+    sqrt0:{$[x>0;sqrt x;0]};
+    
+    / get x,y,z position of point on sphere given x,y,r
+    
+    z:{[x;y;r]sqrt0((r*r)-((x*x)+(y*y)))};
+    
+    / get diffused light at point on sphere
+    
+    is:{[x;y;r]
+    z0:z[x;y;r];
+    s:(x;y;z0)%r;
+    $[z0>0;i:0.5*1+(+/)(s*l);i:0];
+    i};
+    
+    / get pixel value at given image position
+    
+    fcn:{[xpx;ypx]
+    x:xpx-w%2;
+    y:ypx-h%2;
+    z1:z[x;y;r];
+    x2:x+190;
+    z2:170-z[x2;y;r];
+    $[(r*r)<((x*x)+(y*y));
+        $[y>-50;
+            i:3#0;
+            i:200 100 50];
+        $[z2>z1;
+            i:3#is[x;y;r]*140;
+            i:3#is[(-1*x2);(-1*y);r]*120]
+    ];
+    "i"$i};
+    
+    / do it ...
+    
+    \l bmp.q
+    fn:`:demo.bmp;
+    writebmp[w;h;fcn;fn];
 
+    ![Deathstar](http://rosettacode.org/mw/images/8/83/Qdstar.jpg)
 ---
 
 ### Paket
@@ -121,30 +253,10 @@
     nuget NUnit
     
     github forki/FsUnit FsUnit.fs
-      
+        
 ---
 
-### C/AL
-
-    [lang=cal]
-    PROCEDURE FizzBuzz(n : Integer) r_Text : Text[1024];
-    VAR
-      l_Text : Text[1024];
-    BEGIN
-      r_Text := '';
-      l_Text := FORMAT(n);
-
-      IF (n MOD 3 = 0) OR (STRPOS(l_Text,'3') > 0) THEN
-        r_Text := 'Fizz';
-      IF (n MOD 5 = 0) OR (STRPOS(l_Text,'5') > 0) THEN
-        r_Text := r_Text + 'Buzz';
-      IF r_Text = '' THEN
-        r_Text := l_Text;
-    END;
-
-***
-
-**Bayes' Rule in LaTeX**
+### Bayes' Rule in LaTeX
 
 $ \Pr(A|B)=\frac{\Pr(B|A)\Pr(A)}{\Pr(B|A)\Pr(A)+\Pr(B|\neg A)\Pr(\neg A)} $
 
