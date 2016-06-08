@@ -88,4 +88,199 @@ build
 
 git checkout 3-Docs
 build KeepRunning
-firefox C:\Users\KELLERD\Documents\GitHub\Meetup-FSharp-Primer-TypeProvider\docs\output\index.html
+chrome file:///C:/Users/diese/Source/Repos/Meetup-FSharp-Primer-TypeProvider/docs/output/index.html
+open index.fsx
+Change path to : 
+  #r "TicTacToeProvider/TicTacToeProvider.dll"
+open tutorial.fsx
+Change path to : 
+  #r "TicTacToeProvider/TicTacToeProvider.dll"
+  
+open index.fsx - Change to:
+
+let libresult = Library.hello 10
+printfn "hello = %i" libresult 
+
+let result = Library.tryFactorial 5 |> Option.get 
+
+open generate.fsx - add 
+let fsiEvaluator = lazy (Some (FsiEvaluator() :> IFsiEvaluator))
+add 
+        ?fsiEvaluator = fsiEvaluator.Value  
+to end of both  Literate.ProcessDirectory
+
+open index.fsx - add
+
+(*** define-output:test ***)
+Library.hello 10
+|> printfn "hello = %i" 
+
+(** The result of the previous snippet is: *)
+(*** include-output:test ***)
+
+build KeepRunning
+
+add the following and refresh
+
+let result = Library.tryFactorial 5 |> Option.get 
+
+(** And the variable `result` has the following value: *)
+(*** include-value: result ***)
+
+Open Library.fs - add
+
+  /// ## Example
+  ///
+  ///     let facTimes5 = tryFactorial 0 |> Option.map ((*) 5) |> Option.iter (printfn "%A") 
+  ///     printfn "%A" facTimes5
+  ///
+  /// Returns n! or n*n-1*n-2... where n >= 0
+  /// ## Parameters
+  ///  - `n` - parameter to factorial
+  ///
+  
+  //build GenerateReferenceDocs
+  build ReleaseDocs
+
+chrome http://kellerd.github.io/TicTacToeProvider/
+  
+git checkout 4-Paket
+
+open paket.dependencies
+gist swlaschin/3418b549bd222396da82
+.paket\paket.exe install
+
+open TicTacToeProvider.fsproj
+<Compile Include="..\..\paket-files\build\swlaschin\3418b549bd222396da82\enterprise-tic-tac-toe.fsx" />
+
+explore EntTicTacToe.fs
+
+show domain
+show remainingMovesForPlayer 
+show game loop
+
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fsi
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypes.fs
+github fsprojects/FSharp.TypeProviders.StarterPack src/AssemblyReader.fs
+github fsprojects/FSharp.TypeProviders.StarterPack src/AssemblyReaderReflection.fs
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesContext.fs
+github fsprojects/FSharp.TypeProviders.StarterPack src/ProvidedTypesTesting.fs    
+
+
+open TicTacToeProvider.fsproj
+
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fsi" />
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypes.fs" />
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\AssemblyReader.fs" />
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\AssemblyReaderReflection.fs" />
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypesContext.fs" />
+    <Compile Include="..\..\paket-files\build\fsprojects\FSharp.TypeProviders.StarterPack\src\ProvidedTypesTesting.fs" />
+
+Add TicTacToeProvider.fs
+
+namespace TicTacToeProvider
+
+open Microsoft.FSharp.Core.CompilerServices
+open ProviderImplementation.ProvidedTypes
+
+open ``Enterprise-tic-tac-toe``.TicTacToeDomain
+open ``Enterprise-tic-tac-toe``.TicTacToeImplementation
+
+type UserAction<'a,'b> = Play of 'a | End of 'b
+
+[<TypeProvider()>]
+type TicTacToeTypeProvider() as this =
+  inherit TypeProviderForNamespaces()
+  
+  // Get the assembly and namespace used to house the provided types
+  let asm = System.Reflection.Assembly.GetExecutingAssembly()
+  let ns = "TicTacToeGame"
+
+  //Impl goes here
+
+  let rootType = ProvidedTypeDefinition(asm, ns, "Game", Some (typeof<obj>), HideObjectMethods = true)
+  //Add root member here
+  do this.AddNamespace(ns, [rootType])
+  
+[<assembly:TypeProviderAssembly>] 
+do()
+
+---------
+
+Add game loop
+  let rec gameLoop api userAction moveName =
+
+    let t = ProvidedTypeDefinition(moveName, Some(typeof<obj>))
+    t.HideObjectMethods <- true
+    t.IsErased <- true
+    //Add innards
+
+    t
+Add info to type
+    let initType state = 
+        let displayInfo = System.String.Join("\n", state |> api.getCells |> displayCells)
+        let ctor = ProvidedConstructor([])
+        ctor.InvokeCode <- fun _ -> <@@ displayInfo @@>
+        t.AddMember ctor
+        t.AddXmlDoc(displayInfo)
+
+
+Add display cells
+
+  let displayCells cells = 
+    let cellToStr cell = 
+        match cell.state with
+        | Empty -> "-"            
+        | Played player ->
+            match player with
+            | PlayerO -> "O"
+            | PlayerX -> "X"
+
+    let printCells cells  = 
+        cells
+        |> List.map cellToStr
+        |> List.reduce (fun s1 s2 -> s1 + "|" + s2) 
+
+    let topCells = 
+        cells |> List.filter (fun cell -> snd cell.pos = Top) 
+    let centerCells = 
+        cells |> List.filter (fun cell -> snd cell.pos = VCenter) 
+    let bottomCells = 
+        cells |> List.filter (fun cell -> snd cell.pos = Bottom) 
+
+    seq {
+        yield printCells topCells
+        yield printCells centerCells 
+        yield printCells bottomCells 
+    }   
+Add match and actions
+    let addUserActions makeMove state moves = 
+        moves 
+        |> List.map(fun move -> sprintf "%A" move, Play (makeMove state move))
+        |> List.iter(fun (newMoveName, play) -> t.AddMemberDelayed (fun() -> gameLoop api play newMoveName))
+
+    match userAction with 
+    | End (state) ->
+        initType t state
+    | Play (state,moveResult) -> 
+        initType t state
+        match moveResult with
+        | GameTied -> 
+            t.AddMemberDelayed (fun() -> "Game Tied" |> gameLoop api (End state)  )
+        | GameWon player -> 
+            t.AddMemberDelayed (fun() -> sprintf "Game Won by %A" player |> gameLoop api (End state))
+        | PlayerOToMove availableMoves ->
+            addUserActions api.playerOMoves state availableMoves 
+        | PlayerXToMove availableMoves ->
+            addUserActions api.playerXMoves state availableMoves 
+Add root member
+  do rootType.AddMember (gameLoop api (Play api.newGame) "Begin") 
+
+build
+
+Add Test.fsx
+#r "bin/Release/TicTacToeProvider.dll"
+type game = TicTacToeGame.Game.Begin.``PlayerXPos (HCenter, Bottom)``.``PlayerOPos (HCenter, Top)``.``PlayerXPos (Left, VCenter)``.``PlayerOPos (HCenter, VCenter)``.``PlayerXPos (Left, Bottom)``.``PlayerOPos (Left, Top)``.``PlayerXPos (Right, Bottom)``.``Game Won by PlayerX``
+printfn "%A" (game())
+
+git checkout 5-Provider
