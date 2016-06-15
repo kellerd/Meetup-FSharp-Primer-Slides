@@ -4,19 +4,163 @@ Checkout 1-Start
 
 .paket\paket.exe restore
 
+Open Tutorial.fsx
+
+Go through some of the document
+
+let canadaStuff = series wb.Countries.Canada.Indicators.``Computer, communications and other services (% of commercial service exports)``
+canadaStuff
+|> Chart.Line
+|> Chart.WithOptions (Options(legend=Legend(position="bottom")))
+|> Chart.WithLabels [wb.Countries.Canada.Indicators.``Computer, communications and other services (% of commercial service exports)``.Description]
+----
+let population = 
+    series [for c in wb.Countries -> c.Name, c.Indicators.``Population, total``.[2015] ]  
+---
+Chart.Geo population
+
+Minus  
+series [for c in wb.Countries -> c.Name, c.Indicators.``Population, total``.[2014] ]
+
+---
+type People = CsvProvider<"Data.csv">
+let people = People.GetSample()
+let first = people.Rows |> Seq.head
+first.Person_ID
+first.Phone
+first.Email
+
+---
+Change header in csv
+Go back to tutorial, may take few seconds on shitty comp
+---
+type Languages = HtmlProvider<"https://en.wikipedia.org/wiki/Comparison_of_programming_languages">
+let page = Languages.Load("https://en.wikipedia.org/wiki/Comparison_of_programming_languages")
+let data = page.Tables.``General comparison``.Rows 
+            |> Array.filter(fun h -> h.``Functional`` = "Yes")
+let result = 
+    [for r in data ->
+        r.Language, r.``Intended use``, r.Generic, r.``Object-oriented``]
+
+---
+
 Open GreyTide.fsx
 
+---
 Add 
 
 #load "packages/FsLab/FsLab.fsx"
-
+open System
 open Deedle
 open FSharp.Data
 open XPlot.GoogleCharts
 open XPlot.GoogleCharts.Deedle
 
+---
 Add
 
-type StatesProvider = JsonProvider<"http://greytide.azurewebsites.net/tide/v2/States">
+type States = JsonProvider<"""http://greytide.azurewebsites.net/tide/v2/States""">
+type Models = JsonProvider<"""http://greytide.azurewebsites.net/tide/v2/Models/""">
+let states = States.Load("""http://greytide.azurewebsites.net/tide/v2/States/""")
+let models = Models.Load("""http://greytide.azurewebsites.net/tide/v2/Models/""")
 
-type StatesProvider = JsonProvider<"http://greytide.azurewebsites.net/tide/v2/Models">
+// let mapStates = states |> Array.map (fun s -> s.Id, 
+//                                               s.Id2,
+//                                               s.Name,
+//                                               s.Type,
+//                                               s.Events 
+//                                               |> Array.map (fun (e :States.Event) -> 
+//                                                                      e.Name, 
+//                                                                      e.Id, 
+//                                                                      e.To, 
+//                                                                      e.Order, 
+//                                                                      e.StateCollectionId, 
+//                                                                      e.From
+//                                                                      |> Array.map (fun (f : States.From) -> 
+//                                                                                             f.Name,
+//                                                                                             f.Type,
+//                                                                                             f.Id,
+//                                                                                             f.StateId)))
+//V1 : int * Guid * string * string * (string * int * string * int * Guid (Option(string) * Option(string) * Option(string) * Option(Guid)) []) []) []
+
+Show off type inference
+Change to V2
+
+//V2 : int * Guid * string * string * (string * int * string * int * Guid * string []) []) []
+---
+type Person = JsonProvider<"""[{"name":"Dan", "language":"F#"}]""">
+let samples = Person.GetSamples()
+samples |> Array.map (fun p -> p.Name.Length + p.Language.Length)
+---
+Add sample:  ,{"name":"Dad"}
+---
+//Bar chart of current state of my work
+let chart = 
+    models 
+    |> Array.groupBy (fun model -> model.Faction,model.CurrentState)  //Group results by faction and state
+    |> Array.map(fun ((faction,state),models) -> state,faction,models) //Frame can use T1,T2,T3
+    |> Frame.ofValues
+    |> Frame.map (fun s f ms -> ms |> Array.sumBy (fun (m:Models.Root) -> m.Points)) //Frame has map too, get points
+    |> Frame.fillMissingWith 0 //Fill missing values
+    |> Chart.Bar 
+    |> Chart.WithLegend true 
+---
+let tryFindState name = 
+        states 
+        |> Array.collect (fun m -> m.Events) 
+        |> Array.map(fun e -> e.Name, e)
+        |> Map.ofArray
+        |> Map.tryFind name
+
+let results = 
+    models
+    |> Array.collect (fun model -> model.States 
+                                    |> Array.collect (fun state -> 
+                                                            state.Name 
+                                                            |> tryFindState 
+                                                            |> Option.map (fun newState -> newState.To, (state.Date, model.Points)) 
+                                                            |> Option.toArray)
+                                    |> Array.sortBy (snd >> fst)
+                                    |> Array.filter (fun (state, _) -> state <> "Nothing")
+                                    )
+    |> Series.ofValues
+    |> Series.groupInto 
+        (fun _ (name,_) -> name) 
+        (fun _ series ->  series 
+                             |> Series.groupBy (fun _ (name,(date,points)) -> date) 
+                             |> Series.map (fun _ series -> series.Values 
+                                                             |> Seq.sumBy (snd >> snd)) 
+                             |> Series.sortByKey
+                             |> Series.scanValues (+) 0
+                        )
+    |> Frame.ofColumns |> Frame.fillMissing Direction.Forward |> Frame.fillMissingWith 0
+
+results |> Chart.Area  |> Chart.WithLegend true 
+---
+ 
+
+let ChartWithOptions keys = 
+    let options = 
+        Options(pointSize=1, 
+                trendlines=(keys |> Seq.map (fun k -> Trendline(labelInLegend=k,opacity=0.5,lineWidth=5,color="#C0D9EA")) |> Seq.toArray),
+                hAxis=Axis(title="Dates"), 
+                vAxis=Axis(title="Points worth of models"))
+    Chart.WithOptions options 
+
+    Add    
+ |> ChartWithOptions results.ColumnKeys
+---
+Change to some custom mapping
+
+                            let dateValueSeries = 
+                                series 
+                                |> Series.groupBy (fun _ (name,(date,points)) -> date) 
+                                |> Series.map (fun date series -> series.Values 
+                                                                    |> Seq.fold (fun (date,total) (_,(_,newvalue)) -> date,total+(newvalue)) (date,0)) 
+                                |> Series.sortByKey
+                            let firstDate = dateValueSeries |> Series.firstKey
+                            Series.scanValues (fun (date,total) (newDate,newValue) -> 
+                                let (timespan:TimeSpan) = (newDate-date) 
+                                newDate, newValue / (max timespan.Days 1)) (firstDate,0) dateValueSeries  //Normalized by how long it took
+                            |> Series.map (fun _ series -> series |> snd)
+                            |> Series.scanValues (+) 0
