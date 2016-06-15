@@ -4,7 +4,6 @@
 
 #r "FakeLib.dll"
 #r "Suave.dll"
-
 #load "fsreveal.fsx"
 
 // Git configuration (used for publishing documentation in gh-pages branch)
@@ -32,7 +31,6 @@ open Suave.Files
 
 let outDir = __SOURCE_DIRECTORY__ </> "output"
 let slidesDir = __SOURCE_DIRECTORY__ </> "slides"
-
 Target "Clean" (fun _ ->
     CleanDirs [outDir]
 )

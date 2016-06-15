@@ -44,46 +44,126 @@
 
 ---
 
+' Pragmatic
+' Do the boring work
+' Immutable by default
+
+***
+
 ### More Succinct than most
 *** well at least C# ***
 *)
-
     let square x = x * x
-    let xs = 
-        [1..5] 
-        |> List.filter (fun x -> x % 2 = 0) 
-        |> List.map square
+    let xs = [1..5] 
+             |> List.filter (fun x -> x % 2 = 0) 
+             |> List.map square    
+
 (** val xs : int list *)
 (*** include-value: xs ***)
 (**
 
 ---
 
-####Algebraic Data Types, Discriminated Unions
+    [lang=csharp]
+    public static void Main()
+    {
+        var square = (x) => x * x;
+        var xs = Enumerable.Range(1,5).
+                    Where((x) => x % 2 == 0).
+                    Select(square);
+    }
+
+***
+
+### Partial application
+
+*A function*
 
 *)
-    type Bacon = Uncooked | Chewy | Crispy
-    
-    type Tree<'Data> =
-    | Empty 
-    | Node of Tree<'Data> * 'Data * Tree<'Data> 
+let add x y = x + y
+(**
+*A partial application of that function*
 
-    let baconTree = 
-        Node(
-            Node(Empty,Uncooked,Empty),
-            Chewy,
-            Node(Empty,Chewy,Node(Node(Empty,Chewy,Empty),
-                                    Crispy,
-                                    Node(Node(Empty,Chewy,Empty),
-                                         Chewy, 
-                                         Node(Empty,Uncooked,Empty)))))
+*)
+let add5 = add 5
+(*** include-value: add5 ***)
+(**
+*Using that new function*
+*)
+let newResult = add5 6
+(*** include-value: newResult ***)
+(**
+
+***
+
+###Algebraic Data Types, Discriminated Unions
+
+*)
+type Bacon = Uncooked | Chewy | Crispy
+
+type Tree<'Data> =
+| Empty 
+| Node of Tree<'Data> * 'Data * Tree<'Data> 
+
+let baconTree = 
+    Node(
+        Node(Empty,Uncooked,Empty),
+        Chewy,
+        Node(Empty,Chewy,Node(Node(Empty,Chewy,Empty),
+                                Crispy,
+                                Node(Node(Empty,Chewy,Empty),
+                                        Chewy, 
+                                        Node(Empty,Uncooked,Empty)))))
 (** 
-val foodList : Tree < Bacon >
 
 ---
 
 ### Small Basic value
-*)    
+*)
+
+(*** include:dsl-1 ***)
+
+(**
+*[Phil Trelford Small Basic Parser](http://trelford.com/blog/post/interpreter.aspx)*
+
+---
+
+### Small Basic expression
+*)
+
+(*** include:dsl-2 ***)
+
+(**
+
+---
+
+### Small Basic expression
+*)
+
+(*** include:dsl-3 ***)
+
+(**
+
+--- 
+
+###FParsec
+
+*)
+
+(*** include:parsec-1 ***)
+(**
+
+--- 
+
+*)
+
+(*** include:parsec-2 ***)
+(**
+
+--- 
+
+*)
+(*** define: dsl-1 ***)
 type value = // discriminated union
     | Bool of bool
     | Int of int
@@ -91,77 +171,74 @@ type value = // discriminated union
     | String of string
 type logical = Or | And | OrElse | AndAlso
 type comparison = Eq | Neq | Gt | Lt | LtEq | GtEq
-type identifier = {Name:string;Kind:value} //Record
+type identifier = string
 type location = Index of int // Single discriminated union
 type invoke = unit -> unit //Function type
 type arithmetic = Add | Mul | Div | Sub
+(*** define: dsl-2 ***)
+type expr =
+    | Literal of value
+    | Var of identifier
+    | GetAt of location
+    | Func of invoke
+    | Neg of expr
+    | Arithmetic of expr * arithmetic * expr
+    | Comparison of expr * comparison * expr
+    | Logical of expr * logical * expr
+(*** define: dsl-3 ***)
+type label = string // Alias
+type assign = Set of identifier * expr
+type instruction =
+    | Assign of assign
+    | SetAt of location * expr
+    | PropertySet of string * string * expr
+    | Action of invoke
+    | For of assign * expr * expr
+    | EndFor
+    | If of expr
+    | ElseIf of expr
+    | Else
+    | EndIf
+    | While of expr
+    | EndWhile
+    | Sub of identifier
+    | EndSub
+    | GoSub of identifier
+    | Label of label
+    | Goto of label
+(*** define: parsec-1 ***)
+#I @"../packages/FParsec/lib/net40-client"
+#r "FParsec.dll"
+#r "FParsecCS.dll"
+open FParsec.CharParsers
+open FParsec.Primitives
+open System
+let ptrue = pstring "true" |>> fun _ -> true
+let pfalse = pstring "false" |>> fun _ -> false
+let pbool = (ptrue <|> pfalse) |>> fun x -> Bool(x)
+let pint = pint32 |>> fun n -> Int(n)
+let pvalue = pbool <|> pint
+let pliteral = pvalue |>> fun x -> Literal(x)
+let result = run ptrue "true is correct"
+// ...
+//let parse = run pfor "For A=1 To 100"
+//Success: For (Set ("A",Literal (Int 1)),Literal (Int 100),Literal (Int 1))
+(*** define: parsec-2 ***)
+let rec eval expr = 
+    match expr with
+        | Literal(value) -> value
+     // | Var(identifier) -> ...
+//             ...
+        | Logical(expr1, logical, expr2) -> 
+            match (eval expr1),logical,(eval expr2) with 
+            | (Bool a), And, (Bool b) -> Bool(a && b) 
+            | (Int a), And, (Int b) -> Bool(System.Convert.ToBoolean(a) && 
+                                            System.Convert.ToBoolean(b)) 
+            | _ -> failwith "Invalid combination"
+
 (**
 
-[Phil Trelford](http://trelford.com/blog/post/interpreter.aspx)
-
----
-
-### Small Basic expression
-*)
-
-    type expr =
-        | Literal of value
-        | Var of identifier
-        | GetAt of location
-        | Func of invoke
-        | Neg of expr
-        | Arithmetic of expr * arithmetic * expr
-        | Comparison of expr * comparison * expr
-        | Logical of expr * logical * expr
-(**
-
----
-
-### Small Basic expression
-*)
-    type label = string // Alias
-    type assign = identifier * value
-    type instruction =
-        | Assign of assign
-        | SetAt of location * expr
-        | PropertySet of string * string * expr
-        | Action of invoke
-        | For of assign * expr * expr
-        | EndFor
-        | If of expr
-        | ElseIf of expr
-        | Else
-        | EndIf
-        | While of expr
-        | EndWhile
-        | Sub of identifier
-        | EndSub
-        | GoSub of identifier
-        | Label of label
-        | Goto of label
-
-(**
---- 
-
-###FParsec
-    let pbool = ptrue <|> pfalse // just parse
-
-    let pbool = ptrue <|> pfalse |>> fun x -> Bool(x) //or Put into AST
-
-    let pliteral = pvalue |>> fun x -> Literal(x)
-    let pset = pipe3 pidentifier (pstring "=") pexpr (fun id _ e -> Set(id, e))
-    let pfor =
-        let pfrom = pstring "For" >>. spaces1 >>. pset
-        let pto = pstring "To" >>. spaces1 >>. pexpr
-        let pstep = pstring "Step" >>. spaces1 >>. pexpr
-        let toStep = function None -> Literal(Int(1)) | Some s -> s
-        pipe3 pfrom pto (opt pstep) (fun f t s -> For(f, t, toStep s))
-    
-    run pfor "For A=1 To 100"
-
-    //val it : ParserResult<instruction,unit> =
-        //Success: For (Set ("A",Literal (Int 1)),Literal (Int 100),Literal (Int 1))
----
+***
 
 #### Active Patterns
 *)
@@ -186,10 +263,12 @@ let checkInput s =
 ---
 
 *)
-let (|RGB|) (col : System.Drawing.Color) =
+#r "System.Drawing"
+open System.Drawing
+let (|RGB|) (col : Color) =
     ( col.R, col.G, col.B )
 
-let (|HSB|) (col : System.Drawing.Color) =
+let (|HSB|) (col : Color) =
     ( col.GetHue(), col.GetSaturation(), col.GetBrightness() )
 
 let checkColour c =
@@ -216,9 +295,49 @@ let result =
 (** val result : *)
 (*** include-value: result ***)
 
+(**
 
+***
+### Units of Measure
+' let acceleration = 2.*(distance/time-initialVelocity)/time
+' The unit of measure 'm/sec ^ 2' does not match the unit of measure 'm/sec'
+**)
+
+[<Measure>] type m
+[<Measure>] type s
+[<Measure>] type kg
+let distance = 135.0<m>    
+let time = 4.0<s>    
+let velocity = distance / time    
+let initialVelocity = 0.7<m/s>   
+let mass = 62.<kg>
+let acceleration = 2.*(distance/time-initialVelocity)/time
+let force = mass * acceleration
+[<Measure>] type N = kg m/s^2
+let forceDifference = force - 3.<N>
+(*** include-value: forceDifference ***)
+let momentum = mass * velocity
+(*** include-value: momentum ***)
+(**
+
+---
+
+*)
+[<Measure>] type C
+[<Measure>] type F
+
+let CtoF c = 
+    c * 1.8<F/C> + 32.0<F>
+let Far =  CtoF 21.<C>
+
+(*** include-value: CtoF ***)
+(*** include-value: Far ***)
 
 (**
+
+***
+
+### Computation expressions
 
 ***
 
@@ -226,17 +345,6 @@ let result =
  - Presenting at meetups
     - FsReveal, show markdown, code samples
 'TCBay
-
-***
-
-### Features/What it enables
- - DDD / DSLs
- - DU
- - Active Patterns
- - Computation expressions
- - Immutable by default
-' Pragmatic
-' Do the boring work
 
 ***
 

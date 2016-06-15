@@ -45,15 +45,9 @@
 ### Succinct
 
     let square x = x * x
-    let xs = [1..5] |> List.filter (fun x -> x % 2) |> List.map square
-
-    (*** include-value: xs ***)
-
-    type Quantity = Quantity of int
-    type Bacon = Uncooked | Chewy | Crispy
-    type Order = (Bacon * Quantity) list
-
-    let foodList = [(Uncooked,0);(Chewy,5);(Crispy,2)]
+    let xs = [1..5] 
+             |> List.filter (fun x -> x % 2 = 0) 
+             |> List.map square   
 
 ***
 
