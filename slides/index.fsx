@@ -81,18 +81,139 @@
 val foodList : Tree < Bacon >
 
 ---
+
+### Small Basic value
+*)    
+type value = // discriminated union
+    | Bool of bool
+    | Int of int
+    | Double of double
+    | String of string
+type logical = Or | And | OrElse | AndAlso
+type comparison = Eq | Neq | Gt | Lt | LtEq | GtEq
+type identifier = {Name:string;Kind:value} //Record
+type location = Index of int // Single discriminated union
+type invoke = unit -> unit //Function type
+type arithmetic = Add | Mul | Div | Sub
+(**
+
+[Phil Trelford](http://trelford.com/blog/post/interpreter.aspx)
+
+---
+
+### Small Basic expression
+*)
+
+    type expr =
+        | Literal of value
+        | Var of identifier
+        | GetAt of location
+        | Func of invoke
+        | Neg of expr
+        | Arithmetic of expr * arithmetic * expr
+        | Comparison of expr * comparison * expr
+        | Logical of expr * logical * expr
+(**
+
+---
+
+### Small Basic expression
+*)
+    type label = string // Alias
+    type assign = identifier * value
+    type instruction =
+        | Assign of assign
+        | SetAt of location * expr
+        | PropertySet of string * string * expr
+        | Action of invoke
+        | For of assign * expr * expr
+        | EndFor
+        | If of expr
+        | ElseIf of expr
+        | Else
+        | EndIf
+        | While of expr
+        | EndWhile
+        | Sub of identifier
+        | EndSub
+        | GoSub of identifier
+        | Label of label
+        | Goto of label
+
+(**
+--- 
+
+###FParsec
+    let pbool = ptrue <|> pfalse // just parse
+
+    let pbool = ptrue <|> pfalse |>> fun x -> Bool(x) //or Put into AST
+
+    let pliteral = pvalue |>> fun x -> Literal(x)
+    let pset = pipe3 pidentifier (pstring "=") pexpr (fun id _ e -> Set(id, e))
+    let pfor =
+        let pfrom = pstring "For" >>. spaces1 >>. pset
+        let pto = pstring "To" >>. spaces1 >>. pexpr
+        let pstep = pstring "Step" >>. spaces1 >>. pexpr
+        let toStep = function None -> Literal(Int(1)) | Some s -> s
+        pipe3 pfrom pto (opt pstep) (fun f t s -> For(f, t, toStep s))
+    
+    run pfor "For A=1 To 100"
+
+    //val it : ParserResult<instruction,unit> =
+        //Success: For (Set ("A",Literal (Int 1)),Literal (Int 100),Literal (Int 1))
+---
+
 #### Active Patterns
 *)
-    let (|Delicious|Eww|) b = 
-        match b with
-        | Chewy | Crispy -> Delicious "Yummy"
-        | _ -> Eww "Gross"
+let (|Integer|_|) s =
+  match System.Int32.TryParse(s) with
+  | (true, n) -> Some n
+  | _ -> None
 
-    let result = 
-        match Chewy with
-        | Delicious s -> sprintf "Yay: %s" s
-        | Eww s -> sprintf "Nooooo: %s" s
+let (|Float|_|) s =
+  match System.Double.TryParse(s) with
+  | (true, d) -> Some d
+  | _ -> None
 
+let checkInput s =
+    match s with
+    | Integer n -> sprintf "%d : int" n
+    | Float d -> sprintf "%f : float" d
+    | _ -> "Garbage"
+
+(**
+
+---
+
+*)
+let (|RGB|) (col : System.Drawing.Color) =
+    ( col.R, col.G, col.B )
+
+let (|HSB|) (col : System.Drawing.Color) =
+    ( col.GetHue(), col.GetSaturation(), col.GetBrightness() )
+
+let checkColour c =
+    match c with 
+    | HSB (h,s,b) when b > 50.f -> sprintf "over half bright"
+    | RGB (r,g,b)  -> sprintf "Some %d, %d, %d" r g b
+
+
+(**
+
+---
+
+*)
+
+let (|Delicious|Eww|) b = 
+    match b with
+    | Chewy | Crispy -> Delicious "Yummy"
+    | _ -> Eww "Gross"
+
+let result = 
+    match Chewy with
+    | Delicious s -> sprintf "Yay: %s" s
+    | Eww s -> sprintf "Nooooo: %s" s
+(** val result : *)
 (*** include-value: result ***)
 
 
