@@ -32,6 +32,7 @@
 ' v3 Type providers, More interop with .NET 4.0 features
 ' v4 Perf, Library functions, Yet another result type to be fixed
  - Very Succinct 
+  - Time to market
  - **Statically** , Strong, **Inferred**
 ' Static - types must match
 ' Strong - No strings to int, must be explicit
@@ -41,12 +42,35 @@
 ' Compared to Clojure - type system and things like Scott's DDD posts/slides could be beneficial
 ' https://www.quora.com/Is-F-F-Sharp-better-than-Scala-If-so-why?share=1
 ' http://techneilogy.blogspot.fr/2012/01/f-vs-scala-my-take-at-year-two.html
-
----
-
 ' Pragmatic
 ' Do the boring work
 ' Immutable by default
+' No nulls
+' Correctness
+' Explicit
+
+***
+
+### .NET ecosystem
+- Where does it fit in
+' Ivory tower 
+- Very active community 
+ 
+---
+
+### Open Source Projects/Community
+- Active, small, tight community
+- Upper eschilons community are language junkies
+- FsReveal
+- FParsec
+- Neat TypeProviders
+- Ionide
+- FAKE (F# Make)/Paket (Dependency management)
+' Steffen Forkmann - 5200 contributions last year
+' Don Syme - 2650 contributions
+' Krzysztof Cieślak - 1500 contributions
+' Tomas Petricek - 1200 contributions
+' Alfonso Garcia - 1000 contributions
 
 ***
 
@@ -56,21 +80,47 @@
     let square x = x * x
     let xs = [1..5] 
              |> List.filter (fun x -> x % 2 = 0) 
-             |> List.map square    
+             |> List.map square 
 
 (** val xs : int list *)
 (*** include-value: xs ***)
 (**
+' REPL   
 
 ---
 
     [lang=csharp]
-    public static void Main()
-    {
-        var square = (x) => x * x;
-        var xs = Enumerable.Range(1,5).
-                    Where((x) => x % 2 == 0).
-                    Select(square);
+    public class Program {
+        public int square(int x)
+        {
+            return x * x;
+        }
+        public static List<int> Main()
+        {
+            List<int> ints = new List<int>();
+            for (int i = 1; i <= 5; i++)
+            {
+                if (i % 2 == 0) 
+                {
+                    ints.Add(square(i));
+                }
+            }
+            return ints;
+        }
+    }
+
+---
+
+    [lang=csharp]
+    
+    public class Program {
+        public static List<int> Main()
+        {
+            var square = (x) => x * x;
+            return xs = Enumerable.Range(1,5).
+                        Where((x) => x % 2 == 0).
+                        Select(square);
+        }
     }
 
 ***
@@ -78,12 +128,10 @@
 ### Partial application
 
 *A function*
-
 *)
 let add x y = x + y
 (**
 *A partial application of that function*
-
 *)
 let add5 = add 5
 (*** include-value: add5 ***)
@@ -93,6 +141,36 @@ let add5 = add 5
 let newResult = add5 6
 (*** include-value: newResult ***)
 (**
+
+---
+
+Pipe operator |> 
+- Connect the output to the input of the next
+- Brackets means infix operator
+*)
+
+let (|>) x f = f(x) 
+let a = 4 |> add5 |> printfn "%A"
+
+(**
+Pipe <|
+- Same thing, but to the right side
+*)
+let (<|) g x = g(x)
+let b = add5 <| (1 + 1)
+
+(**---
+*)
+let thedarkside = 1 |>(+)<| 2
+
+let λ = 1 + 2
+
+(**
+### Type Safety
+- Functions will be as generic as possible, until they use something that binds them to a type
+- Uses lamdba calculus to formulate what types are intended on being used
+- Can't shove Bacon into something that wants Vegitables
+- Re-working domain will lead to compile errors instead of runtime errors
 
 ***
 
@@ -158,11 +236,6 @@ let baconTree =
 *)
 
 (*** include:parsec-2 ***)
-(**
-
---- 
-
-*)
 (*** define: dsl-1 ***)
 type value = // discriminated union
     | Bool of bool
@@ -288,12 +361,12 @@ let (|Delicious|Eww|) b =
     | Chewy | Crispy -> Delicious "Yummy"
     | _ -> Eww "Gross"
 
-let result = 
+let baconresult = 
     match Chewy with
     | Delicious s -> sprintf "Yay: %s" s
     | Eww s -> sprintf "Nooooo: %s" s
 (** val result : *)
-(*** include-value: result ***)
+(*** include-value: baconresult ***)
 
 (**
 
@@ -301,11 +374,11 @@ let result =
 ### Units of Measure
 ' let acceleration = 2.*(distance/time-initialVelocity)/time
 ' The unit of measure 'm/sec ^ 2' does not match the unit of measure 'm/sec'
-**)
+*)
 
-[<Measure>] type m
-[<Measure>] type s
-[<Measure>] type kg
+[<Measure>] type m = class end
+[<Measure>] type s = class end
+[<Measure>] type kg = class end
 let distance = 135.0<m>    
 let time = 4.0<s>    
 let velocity = distance / time    
@@ -323,58 +396,236 @@ let momentum = mass * velocity
 ---
 
 *)
-[<Measure>] type C
-[<Measure>] type F
+    [<Measure>] type C = class end
+    [<Measure>] type F = class end
 
-let CtoF c = 
-    c * 1.8<F/C> + 32.0<F>
-let Far =  CtoF 21.<C>
-
-(*** include-value: CtoF ***)
+    let CtoF c = 
+        c * 1.8<F/C> + 32.0<F>
+    let Far =  CtoF 21.<C>
 (*** include-value: Far ***)
-
 (**
 
 ***
 
 ### Computation expressions
 
-***
+- Syntactic sugar for monadic binds
+    - Looks like imperative as imperative
+- Lead to LINQ, Async/Await in C#
+- Similar in function to Haskell do, or Scala for {} yield
+- https://fsharpforfunandprofit.com/series/computation-expressions.html
+- By default we get seq {} and async {}
+' These are lazy
+- Implementation up to the builder. 
 
-### What I use it for
- - Presenting at meetups
-    - FsReveal, show markdown, code samples
-'TCBay
+---
+
+*)
+let urls = seq {
+        yield "http://google.com"
+        yield "http://yahoo.com"
+        yield! [for i in [0..5] -> "http://google.com?q=" + i.ToString()]
+    } 
+let list = urls |> Seq.toList
+(*** include-value:list ***)
+(**
+
+---
+
+*)
+#r "System.Net.Http"
+open System
+open System.Net.Http
+let longRunning url = 
+    async {
+        use client = new HttpClient()        
+        let! result = Uri(url) |> client.GetAsync |> Async.AwaitTask
+        return result
+    }
+let text = urls |> Seq.map longRunning  |> Async.Parallel
+
+
+(**
+
+
+---
+
+    - return : a -> Special<a>
+    - bind : (a -> Special<b>) -> Special<a> -> Special<b>
+    - map : (a -> b) -> Special<a> -> Special<b>
+    - apply : Special(a->b) -> Special<a> -> Special<b>
+
+---
+
+*)
+
+let bind f xOpt = 
+        match xOpt with
+        | Some x -> f x
+        | _ -> None
+
+type MaybeBuilder() =
+     member this.Bind(m, f) = bind f m
+     member this.Return(x) = Some x
+let maybe = MaybeBuilder()
+
+(**
+
+---
+
+Turn 
+*)
+
+let optR one two three = 
+    bind (fun x -> 
+        bind (fun y -> 
+            bind(fun z -> Some (x + y + z)) three) two) one
+
+(**
+Into 
+*)
+let optRe one two three =  maybe {
+    let! x = one 
+    let! y = two
+    let! z = three
+    return x + y + z  
+}
+(**---*)
+(***define-value:opt***)
+let opt = optRe (Some 4) (Some 2) (Some 1)
+(***include-value:opt***)
+let opt2 = optRe (Some 4) (Some 2) None
+(**
+    val it : None
+    *)
+(**
+
+---
+
+*)
+let products = Map.empty<string,int> |> Map.add "Veggies" 1  |> Map.add "Bacon" 2
+let customers = Map.empty<string,int> |> Map.add "Dan"  1 |> Map.add "Chris" 2
+type Order = {Customer:int;Product:int}
+(**---*)
+let orderProduct customerKey productKey =
+    match Map.tryFind customerKey customers with 
+    | None -> None
+    | Some cust -> match Map.tryFind productKey products with 
+                | None -> None
+                | Some prod -> Some {Customer=cust;Product=prod} 
+                
+let _ = match orderProduct "Dan" "Bacon" with 
+        | Some prod -> printfn "%A" prod
+        | None -> ()
+(**
+    Some 1 *)
+let _ = match orderProduct "Chris" "Not veggies"  with 
+        | Some prod -> printfn "%A" prod
+        | None -> ()
+(**
+    None *)
+
+(**
+
+---
+
+*)
+
+let orderProduct2 customerKey productKey = maybe {
+    let! cust = Map.tryFind customerKey customers 
+    let! prod = Map.tryFind customerKey customers
+    return {Customer=cust;Product=prod} 
+}
+maybe { let! result = orderProduct2 "Dan" "Bacon"
+        return result.Product }
+(**
+    Some 1 *)
+maybe { let! result = orderProduct2 "Chris" "Not veggies"
+    return result.Customer }
+(**
+    None *)
+(**
+
+---
+
+Short Demo?
+
+' let u = 45 //int 
+' let x = Some 45 //int option | Option<int>
+' let y = None //a' option | Option<'a>, will stay generic until you use it
+' 
+' let a = u + x //Compiler error, how to combine int, int option
+' let (Some x') = x
+' let a = u + x'
+' let (Some y') = y //Runtime error 
+' let add v = 
+'     match v with 
+'     | Some v -> Some (u + v)
+'     | None -> None 
+'  
+
+---
+
+    let cluster = AzureCluster.Connect(config, 
+                                    logger = ConsoleLogger(true), 
+                                    logLevel = LogLevel.Info)
+    let localResult = cloud { 
+            printfn "hello, world" 
+            return Environment.MachineName 
+        } |> cluster.RunLocally
+
+    let remoteResult = cloud { 
+            printfn "hello, world" 
+            return Environment.MachineName 
+        } |> cluster.Run                          
 
 ***
 
 ### Domains used
+####Everything
+- F# Advent Calendar
+ - (https://sergeytihon.wordpress.com/2014/11/24/f-advent-calendar-in-english-2014/)
+ - (https://sergeytihon.wordpress.com/2015/10/25/f-advent-calendar-in-english-2015/)
+ - http://fsharpworks.com/survey.html
+ - Domain Modelling/Enterprise dev/Commercial software/Web
+ - Data Science/Machine Learning
+ - Where ever C#/VB are used
+ - Fiddling/Tinkering
+ - Microservices
+' Financials
+' Quake port
+' Mapping of Star Wars characters to connectedness in the story
+' GPU Processing
+' Parsers
+' Creating Business Domains
+' Data Science
 
-### .NET ecosystem
- - Where does it fit in
-  - Ivory tower
- - Very active community 
-
-' Steffen Forkmann - 5200 contributions last year
-' Don Syme - 2650 contributions
-' Krzysztof Cieślak - 1500 contributions
-' Tomas Petricek - 1200 contributions
-' Alfonso Garcia - 1000 contributions
 ***
 
-### Open Source Projects/Community
+###What I use it for
+- Learning Functional Programming
+ - Start with what I know, then go closer to pure
+ - Find some balance between FP and algorithms I know
+ 
 
 ***
 
 ### How to get started
-### Resources
- - FSharp.org
- - C4FSharp
- - fsharpforfunandprofit
+#### Resources
+- https://FSharp.org - Installs for Windows/Linux/OSX
+ - For full Visual Studio, install FSharp Power Tools
+ - For Visual Studio Code (lightweight free) or Atom, use Ionide. 
+- https://fsprojects.github.io
+- FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
+- Community for F# https://C4FSharp.net
+- FSharp For Fun and Profit https://fsharpforfunandprofit.com 
+ - Domain driven design https://fsharpforfunandprofit.com/ddd/
+ - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
+- https://fpchat.com #fsharp-beginners #fsharp #<lang of choice>
 
 ***
 
-### Demo
+### Demo 2
 
 ***
 
@@ -382,20 +633,11 @@ let Far =  CtoF 21.<C>
 
 - Generates [reveal.js](http://lab.hakim.se/reveal-js/#/) presentation from [markdown](http://daringfireball.net/projects/markdown/)
 - Utilizes [FSharp.Formatting](https://github.com/tpetricek/FSharp.Formatting) for markdown parsing
+- Save / Refresh automatically ( build / F5 )
+- Publish to github pages ( build ReleaseSlides )
 - Get it from [http://fsprojects.github.io/FsReveal/](http://fsprojects.github.io/FsReveal/)
 
-![FsReveal](images/logo.png)
-
-***
-
-### Reveal.js
-
-- A framework for easily creating beautiful presentations using HTML.
-
-
-> **Atwood's Law**: any application that can be written in JavaScript, will eventually be written in JavaScript.
-
-***
+---
 
 ### FSharp.Formatting
 
@@ -410,9 +652,9 @@ let Far =  CtoF 21.<C>
 
 #### F# (with tooltips)
 *)
-    let a = 5
-    let factorial x = [1..x] |> List.reduce (*)
-    let c = factorial a
+let a = 5
+let factorial x = [1..x] |> List.reduce (*)
+let c = factorial a
 
 (**
 
@@ -540,20 +782,12 @@ let Far =  CtoF 21.<C>
 
 $ \Pr(A|B)=\frac{\Pr(B|A)\Pr(A)}{\Pr(B|A)\Pr(A)+\Pr(B|\neg A)\Pr(\neg A)} $
 
-***
+*** 
 
-### The Reality of a Developer's Life 
+Goodbye
 
-**When I show my boss that I've fixed a bug:**
-  
-![When I show my boss that I've fixed a bug](http://www.topito.com/wp-content/uploads/2013/01/code-07.gif)
-  
-**When your regular expression returns what you expect:**
-  
-![When your regular expression returns what you expect](http://www.topito.com/wp-content/uploads/2013/01/code-03.gif)
-  
-*from [The Reality of a Developer's Life - in GIFs, Of Course](http://server.dzone.com/articles/reality-developers-life-gifs)*
-
-
+http://github.com/kellerd/Meetup-FSharp-Primer-Slides
+http://github.com/kellerd/FsLabTutorial
+http://github.com/kellerd/TicTacToeProvider
 
 *)
