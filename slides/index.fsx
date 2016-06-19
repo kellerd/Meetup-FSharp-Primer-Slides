@@ -165,6 +165,8 @@ let thedarkside = 1 |>(+)<| 2
 
 let λ = 1 + 2
 
+let ``The output of this test shpuld = 💩`` = 2
+
 (**
 ### Type Safety
 - Functions will be as generic as possible, until they use something that binds them to a type
