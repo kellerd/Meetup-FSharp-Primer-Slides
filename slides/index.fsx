@@ -11,7 +11,7 @@
 
 ![F#](images/fsharp256.png)
 
-  *A look at F# from a pragmatic an practical point of view*
+  *A look at F# from a pragmatic and practical point of view*
  
 ---
 ### Language
@@ -27,27 +27,33 @@
 ### Design 
  - A Descendant of OCAML for the .NET Ecosystem
 ' v1.0 was almost a direct port, 2-3 awesome stuff, 4+ quality of life
+' Talks with OCaml Lead - Xavier to not only port, but to extend
 ' v1 Functional programming, DU, Pattern Matching, Records, Interop with .NET
 ' v2 Active Patterns, Units of Measure, Computation expressions
 ' v3 Type providers, More interop with .NET 4.0 features
 ' v4 Perf, Library functions, Yet another result type to be fixed
  - Very Succinct 
   - Time to market
+
+---
+
  - **Statically** , Strong, **Inferred**
 ' Static - types must match
 ' Strong - No strings to int, must be explicit
 ' Inferred - Compiler goes through code, checks how it's being used, then assigns type 
 ' Some dynamic, from interop with C#, not popular, has it's uses
  - ***Functional First***, Multiparadigm as needed
-' Compared to Clojure - type system and things like Scott's DDD posts/slides could be beneficial
-' https://www.quora.com/Is-F-F-Sharp-better-than-Scala-If-so-why?share=1
-' http://techneilogy.blogspot.fr/2012/01/f-vs-scala-my-take-at-year-two.html
-' Pragmatic
-' Do the boring work
-' Immutable by default
-' No nulls
+
+---
+
+- Pragmatic, sane defaults
+- Do the boring work
+- Immutable by default
+- No nulls
+- Explicit
+- REPL
+
 ' Correctness
-' Explicit
 
 ***
 
@@ -55,17 +61,24 @@
 - Where does it fit in
 ' Ivory tower 
 - Very active community 
+- C#/VB.NET Interop. 
+ - Most good features of C# came from a badly implemented version of the same F# feature
+' Design focus, extend where possible, maybe weird design patterns if CLR doesn't support 
  
 ---
 
 ### Open Source Projects/Community
 - Active, small, tight community
 - Upper eschilons community are language junkies
-- FsReveal
-- FParsec
-- Neat TypeProviders
-- Ionide
-- FAKE (F# Make)/Paket (Dependency management)
+
+- Projects  - http://fsprojects.github.io/
+ - Fable
+ - FsReveal
+ - FParsec
+ - Neat TypeProviders (SQL, Swagger,CSV,HTML,WMI)
+  - Data to types
+ - Ionide
+ - FAKE (F# Make)/Paket (Dependency management)
 ' Steffen Forkmann - 5200 contributions last year
 ' Don Syme - 2650 contributions
 ' Krzysztof Cieślak - 1500 contributions
@@ -176,6 +189,24 @@ let ``The output of this test shpuld = 💩`` = 2
 - Uses lamdba calculus to formulate what types are intended on being used
 - Can't shove Bacon into something that wants Vegitables
 - Re-working domain will lead to compile errors instead of runtime errors
+
+***
+
+Short Demo?
+
+' let u = 45 //int 
+' let x = Some 45 //int option | Option<int>
+' let y = None //a' option | Option<'a>, will stay generic until you use it
+' 
+' let a = u + x //Compiler error, how to combine int, int option
+' let (Some x') = x
+' let a = u + x'
+' let (Some y') = y //Runtime error 
+' let add v = 
+'     match v with 
+'     | Some v -> Some (u + v)
+'     | None -> None 
+'  
 
 ***
 
@@ -364,12 +395,12 @@ let checkColour c =
 let (|Delicious|Eww|) b = 
     match b with
     | Chewy | Crispy -> Delicious "Yummy"
-    | _ -> Eww "Gross"
+    | _ -> Eww 165
 
 let baconresult = 
     match Chewy with
     | Delicious s -> sprintf "Yay: %s" s
-    | Eww s -> sprintf "Nooooo: %s" s
+    | Eww temp -> sprintf "Please cook till: %d" temp
 (** val result : *)
 (*** include-value: baconresult ***)
 
@@ -394,19 +425,19 @@ let force = mass * acceleration
 [<Measure>] type N = kg m/s^2
 let forceDifference = force - 3.<N>
 (*** include-value: forceDifference ***)
-let momentum = mass * velocity
+let momentum : float<kg m/s> = mass * velocity
 (*** include-value: momentum ***)
 (**
 
 ---
 
 *)
-    [<Measure>] type C = class end
-    [<Measure>] type F = class end
+[<Measure>] type C = class end
+[<Measure>] type F = class end
 
-    let CtoF c = 
-        c * 1.8<F/C> + 32.0<F>
-    let Far =  CtoF 21.<C>
+let CtoF c = 
+    c * 1.8<F/C> + 32.0<F>
+let Far =  CtoF 21.<C>
 (*** include-value: Far ***)
 (**
 
@@ -416,9 +447,11 @@ let momentum = mass * velocity
 
 - Syntactic sugar for monadic binds
     - Looks like imperative as imperative
+
 - Lead to LINQ, Async/Await in C#
 - Similar in function to Haskell do, or Scala for {} yield
 - https://fsharpforfunandprofit.com/series/computation-expressions.html
+
 - By default we get seq {} and async {}
 ' These are lazy
 - Implementation up to the builder. 
@@ -551,23 +584,6 @@ maybe { let! result = orderProduct2 "Chris" "Not veggies"
     None *)
 (**
 
----
-
-Short Demo?
-
-' let u = 45 //int 
-' let x = Some 45 //int option | Option<int>
-' let y = None //a' option | Option<'a>, will stay generic until you use it
-' 
-' let a = u + x //Compiler error, how to combine int, int option
-' let (Some x') = x
-' let a = u + x'
-' let (Some y') = y //Runtime error 
-' let add v = 
-'     match v with 
-'     | Some v -> Some (u + v)
-'     | None -> None 
-'  
 
 ---
 
@@ -611,24 +627,9 @@ Short Demo?
 ###What I use it for
 - Learning Functional Programming
  - Start with what I know, then go closer to pure
-  - I can start with 
+  ' I can start with an imperative or OO, factor out mutable bits, ect 
  - Find some balance between FP and algorithms I know
  
-
-***
-
-### How to get started
-#### Resources
-- https://FSharp.org - Installs for Windows/Linux/OSX
- - For full Visual Studio, install FSharp Power Tools
- - For Visual Studio Code (lightweight free) or Atom, use Ionide. 
-- https://fsprojects.github.io
-- FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
-- Community for F# https://C4FSharp.net
-- FSharp For Fun and Profit https://fsharpforfunandprofit.com 
- - Domain driven design https://fsharpforfunandprofit.com/ddd/
- - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
-- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #<lang of choice>
 
 ***
 
@@ -801,5 +802,19 @@ Goodbye
 http://github.com/kellerd/Meetup-FSharp-Primer-Slides
 http://github.com/kellerd/FsLabTutorial
 http://github.com/kellerd/TicTacToeProvider
+
+### How to get started
+#### Resources
+- *https://FSharp.org - Installs for Windows/Linux/OSX*
+ - For full Visual Studio, install FSharp Power Tools extension
+ - For Visual Studio Code (lightweight free) or Atom, use Ionide extenion. 
+- https://fsprojects.github.io
+- FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
+- Community for F# https://C4FSharp.net
+- *FSharp For Fun and Profit https://fsharpforfunandprofit.com *
+ - Domain driven design https://fsharpforfunandprofit.com/ddd/
+ - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
+- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #<lang of choice>
+
 
 *)
