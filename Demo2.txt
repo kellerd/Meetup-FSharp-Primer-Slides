@@ -105,6 +105,28 @@ let chart =
     |> Chart.Bar 
     |> Chart.WithLegend true 
 ---
+
+//Get how much work i've done over time
+let days = Seq.initInfinite (fun i -> DateTime.Parse("1/1/2015").AddDays(i|>float), 0.) |> Seq.takeWhile(fun (d,_) -> d < DateTime.Now) |> Seq.map (fun (d,f) -> d.ToShortDateString(),f) |> Seq.toArray
+let mapWork state points = 
+    match state, (points|>float) with
+     | "Assembled",p -> 0.75 * p
+     | ("Primed"|"Varnished"),p -> 0.10 * p
+     | "Painted",p -> 2.0 * p
+     | "Weathered",p -> 0.25 * p
+     | _ -> 0.0
+let results = 
+    data 
+    |> Array.map (fun (state,(date,points))-> date.Date.ToShortDateString(), mapWork state points)
+    |> Array.append days
+    |> Series.ofValues 
+    |> Series.groupInto (fun _ (d,t) -> d |> DateTime.Parse) (fun _ s -> s |> Series.values |> Seq.map (snd) |> Seq.sum)
+    |> Series.filter (fun k _ -> k <> DateTime.Parse("1/1/2015"))
+    |> Series.sortByKey
+    |> Stats.movingMean 75
+    |> Chart.Line
+
+---
 let tryFindState name = 
         states 
         |> Array.collect (fun m -> m.Events) 
@@ -112,7 +134,7 @@ let tryFindState name =
         |> Map.ofArray
         |> Map.tryFind name
 
-let results = 
+let results' = 
     models
     |> Array.collect (fun model -> model.States 
                                     |> Array.collect (fun state -> 
@@ -135,7 +157,7 @@ let results =
                         )
     |> Frame.ofColumns |> Frame.fillMissing Direction.Forward |> Frame.fillMissingWith 0
 
-results |> Chart.Area  |> Chart.WithLegend true 
+results' |> Chart.Area  |> Chart.WithLegend true 
 ---
  
 
@@ -147,8 +169,8 @@ let ChartWithOptions keys =
                 vAxis=Axis(title="Points worth of models"))
     Chart.WithOptions options 
 
-    Add    
- |> ChartWithOptions results.ColumnKeys
+    Change to     
+results' |> Chart.Area  |> Chart.WithLegend true  |> ChartWithOptions results'.ColumnKeys
 ---
 Change to some custom mapping
 

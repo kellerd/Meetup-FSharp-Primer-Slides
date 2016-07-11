@@ -168,6 +168,9 @@ let λ = 1 + 2
 let ``The output of this test shpuld = 💩`` = 2
 
 (**
+
+---
+
 ### Type Safety
 - Functions will be as generic as possible, until they use something that binds them to a type
 - Uses lamdba calculus to formulate what types are intended on being used
@@ -593,6 +596,7 @@ Short Demo?
  - Data Science/Machine Learning
  - Where ever C#/VB are used
  - Fiddling/Tinkering
+ - The boring work
  - Microservices
 ' Financials
 ' Quake port
@@ -607,6 +611,7 @@ Short Demo?
 ###What I use it for
 - Learning Functional Programming
  - Start with what I know, then go closer to pure
+  - I can start with 
  - Find some balance between FP and algorithms I know
  
 
@@ -623,7 +628,7 @@ Short Demo?
 - FSharp For Fun and Profit https://fsharpforfunandprofit.com 
  - Domain driven design https://fsharpforfunandprofit.com/ddd/
  - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
-- https://fpchat.com #fsharp-beginners #fsharp #<lang of choice>
+- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #<lang of choice>
 
 ***
 
@@ -635,18 +640,11 @@ Short Demo?
 
 - Generates [reveal.js](http://lab.hakim.se/reveal-js/#/) presentation from [markdown](http://daringfireball.net/projects/markdown/)
 - Utilizes [FSharp.Formatting](https://github.com/tpetricek/FSharp.Formatting) for markdown parsing
-- Save / Refresh automatically ( build / F5 )
-- Publish to github pages ( build ReleaseSlides )
+- Save / Refresh automatically ( Shell/Terminal : build )
+- Publish to github pages ( Shell/Terminal : build ReleaseSlides )
 - Get it from [http://fsprojects.github.io/FsReveal/](http://fsprojects.github.io/FsReveal/)
 
----
 
-### FSharp.Formatting
-
-- F# tools for generating documentation (Markdown processor and F# code formatter).
-- It parses markdown and F# script file and generates HTML or PDF.
-- Code syntax highlighting support.
-- It also evaluates your F# code and produce tooltips.
 
 ***
 
@@ -659,6 +657,15 @@ let factorial x = [1..x] |> List.reduce (*)
 let c = factorial a
 
 (**
+
+---
+
+### FSharp.Formatting
+
+- F# tools for generating documentation (Markdown processor and F# code formatter).
+- It parses markdown and F# script file and generates HTML or PDF.
+- Code syntax highlighting support.
+- It also evaluates your F# code and produce tooltips.
 
 ---
 
@@ -717,6 +724,7 @@ let c = factorial a
 *code from [NashFP/rosalind](https://github.com/NashFP/rosalind/blob/master/mark_wutka%2Bhaskell/FIB/fib_ziplist.hs)*
 
 ---
+
 #### Scala
  
     [lang=scala]
@@ -734,6 +742,7 @@ let c = factorial a
             println((it head) + "." + (it take 300 mkString))
         }
     }
+
 ---
 
 #### Clojure
@@ -749,6 +758,7 @@ let c = factorial a
         :else (concat (take (dec n) seq) (lazy-seq (drop-nth n (drop n seq))))))
 
 ---
+
 #### Q
  
     [lang=q]
