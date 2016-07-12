@@ -90,10 +90,10 @@
 ### More Succinct than most
 *** well at least C# ***
 *)
-    let square x = x * x
-    let xs = [1..5] 
-             |> List.filter (fun x -> x % 2 = 0) 
-             |> List.map square 
+let square x = x * x
+let xs = [1..5] 
+            |> List.filter (fun x -> x % 2 = 0) 
+            |> List.map square 
 
 (** val xs : int list *)
 (*** include-value: xs ***)
@@ -163,7 +163,7 @@ Pipe operator |>
 *)
 
 let (|>) x f = f(x) 
-let a = 4 |> add5 |> printfn "%A"
+let nine = 4 |> add5 |> printfn "%A"
 
 (**
 Pipe <|
@@ -176,11 +176,9 @@ let b = add5 <| (1 + 1)
 *)
 let thedarkside = 1 |>(+)<| 2
 
-let λ = 1 + 2
-
-let ``The output of this test shpuld = 💩`` = 2
-
 (**
+    let λ = 1 + 2
+    let ``The output of this test shpuld = 💩`` = 2
 
 ---
 
@@ -411,10 +409,9 @@ let baconresult =
 ' let acceleration = 2.*(distance/time-initialVelocity)/time
 ' The unit of measure 'm/sec ^ 2' does not match the unit of measure 'm/sec'
 *)
-
-[<Measure>] type m = class end
-[<Measure>] type s = class end
-[<Measure>] type kg = class end
+[<Measure>] type m
+[<Measure>] type s
+[<Measure>] type kg
 let distance = 135.0<m>    
 let time = 4.0<s>    
 let velocity = distance / time    
@@ -424,16 +421,15 @@ let acceleration = 2.*(distance/time-initialVelocity)/time
 let force = mass * acceleration
 [<Measure>] type N = kg m/s^2
 let forceDifference = force - 3.<N>
-(*** include-value: forceDifference ***)
 let momentum : float<kg m/s> = mass * velocity
+(*** include-value: forceDifference ***)
 (*** include-value: momentum ***)
 (**
 
 ---
-
 *)
-[<Measure>] type C = class end
-[<Measure>] type F = class end
+[<Measure>] type C
+[<Measure>] type F
 
 let CtoF c = 
     c * 1.8<F/C> + 32.0<F>
