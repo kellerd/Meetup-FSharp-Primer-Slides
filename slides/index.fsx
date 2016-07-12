@@ -545,8 +545,8 @@ let orderProduct customerKey productKey =
     match Map.tryFind customerKey customers with 
     | None -> None
     | Some cust -> match Map.tryFind productKey products with 
-                | None -> None
-                | Some prod -> Some {Customer=cust;Product=prod} 
+                   | None -> None
+                   | Some prod -> Some {Customer=cust;Product=prod} 
                 
 let _ = match orderProduct "Dan" "Bacon" with 
         | Some prod -> printfn "%A" prod
