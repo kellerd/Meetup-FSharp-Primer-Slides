@@ -916,6 +916,7 @@ The unit of measure 'm/sec ^ 2' does not match the unit of measure 'm/sec'<br/>
 <span class="l">10: </span>
 <span class="l">11: </span>
 <span class="l">12: </span>
+<span class="l">13: </span>
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span onmouseout="hideTip(event, 'fs157', 322)" onmouseover="showTip(event, 'fs157', 322)" class="t">Measure</span>&gt;] <span class="k">type</span> <span onmouseout="hideTip(event, 'fs158', 323)" onmouseover="showTip(event, 'fs158', 323)" class="t">m</span> <span class="o">=</span> <span class="k">class</span> <span class="k">end</span>
 [&lt;<span onmouseout="hideTip(event, 'fs157', 324)" onmouseover="showTip(event, 'fs157', 324)" class="t">Measure</span>&gt;] <span class="k">type</span> <span onmouseout="hideTip(event, 'fs159', 325)" onmouseover="showTip(event, 'fs159', 325)" class="t">s</span> <span class="o">=</span> <span class="k">class</span> <span class="k">end</span>
@@ -929,16 +930,11 @@ The unit of measure 'm/sec ^ 2' does not match the unit of measure 'm/sec'<br/>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs167', 345)" onmouseover="showTip(event, 'fs167', 345)" class="i">force</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs165', 346)" onmouseover="showTip(event, 'fs165', 346)" class="i">mass</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs166', 347)" onmouseover="showTip(event, 'fs166', 347)" class="i">acceleration</span>
 [&lt;<span onmouseout="hideTip(event, 'fs157', 348)" onmouseover="showTip(event, 'fs157', 348)" class="t">Measure</span>&gt;] <span class="k">type</span> <span onmouseout="hideTip(event, 'fs168', 349)" onmouseover="showTip(event, 'fs168', 349)" class="t">N</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs160', 350)" onmouseover="showTip(event, 'fs160', 350)" class="t">kg</span> <span onmouseout="hideTip(event, 'fs158', 351)" onmouseover="showTip(event, 'fs158', 351)" class="t">m</span><span class="o">/</span><span onmouseout="hideTip(event, 'fs159', 352)" onmouseover="showTip(event, 'fs159', 352)" class="t">s</span><span class="o">^</span><span class="n">2</span>
 <span class="k">let</span> <span onmouseout="hideTip(event, 'fs169', 353)" onmouseover="showTip(event, 'fs169', 353)" class="i">forceDifference</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs167', 354)" onmouseover="showTip(event, 'fs167', 354)" class="i">force</span> <span class="o">-</span> <span class="n">3.</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs168', 355)" onmouseover="showTip(event, 'fs168', 355)" class="t">N</span><span class="o">&gt;</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs170', 356)" onmouseover="showTip(event, 'fs170', 356)" class="i">momentum</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs171', 357)" onmouseover="showTip(event, 'fs171', 357)" class="t">float</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs160', 358)" onmouseover="showTip(event, 'fs160', 358)" class="t">kg</span> <span onmouseout="hideTip(event, 'fs158', 359)" onmouseover="showTip(event, 'fs158', 359)" class="t">m</span><span class="o">/</span><span onmouseout="hideTip(event, 'fs159', 360)" onmouseover="showTip(event, 'fs159', 360)" class="t">s</span><span class="o">&gt;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs165', 361)" onmouseover="showTip(event, 'fs165', 361)" class="i">mass</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs163', 362)" onmouseover="showTip(event, 'fs163', 362)" class="i">velocity</span>
 </code></pre></td>
 </tr>
 </table>
 <table class="pre"><tr><td><pre><code>1021.55</code></pre></td></tr></table>
-<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
-</pre></td>
-<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs170', 356)" onmouseover="showTip(event, 'fs170', 356)" class="i">momentum</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs171', 357)" onmouseover="showTip(event, 'fs171', 357)" class="t">float</span><span class="o">&lt;</span><span onmouseout="hideTip(event, 'fs160', 358)" onmouseover="showTip(event, 'fs160', 358)" class="t">kg</span> <span onmouseout="hideTip(event, 'fs158', 359)" onmouseover="showTip(event, 'fs158', 359)" class="t">m</span><span class="o">/</span><span onmouseout="hideTip(event, 'fs159', 360)" onmouseover="showTip(event, 'fs159', 360)" class="t">s</span><span class="o">&gt;</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs165', 361)" onmouseover="showTip(event, 'fs165', 361)" class="i">mass</span> <span class="o">*</span> <span onmouseout="hideTip(event, 'fs163', 362)" onmouseover="showTip(event, 'fs163', 362)" class="i">velocity</span>
-</code></pre></td>
-</tr>
-</table>
 <table class="pre"><tr><td><pre><code>2092.5</code></pre></td></tr></table>
 </section>
 <section >
