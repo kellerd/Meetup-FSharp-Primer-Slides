@@ -1,16 +1,21 @@
 #FSharp Primer
+**A look at F# from a pragmatic and practical point of view**
 
 ## This Presentation
 
-This deck was prepared for the Ottawa Functional Programmers meetup in June 2016, as an introductory topic on *F#* and some of the better features,
+This deck was prepared for the Ottawa Functional Programmers meetup in July 2016, as an introductory topic on *F#* and some of the better features,
 open source projects, and getting started.
 
 ### Agenda
 
-- Talk
-- Static typing demo
-- More Talk
+- History, Design, .NET Ecosystem
+- Open Source / Community
+- Language Features 
+- Short Static typing, Type Inference Demo
+- The interesting language features
+- Where it's used, next steps
 - FsLab Demo
+- FsReveal
 
 ### Links in slides
 http://github.com/kellerd/Meetup-FSharp-Primer-Slides
