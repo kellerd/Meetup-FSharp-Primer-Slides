@@ -1,4 +1,5 @@
 #FSharp Primer
+
 **A look at F# from a pragmatic and practical point of view**
 
 ## This Presentation
@@ -18,23 +19,27 @@ open source projects, and getting started.
 - FsReveal
 
 ### Links in slides
-http://github.com/kellerd/Meetup-FSharp-Primer-Slides
-http://github.com/kellerd/FsLabTutorial
-http://github.com/kellerd/TicTacToeProvider
-https://FSharp.org - Installs for Windows/Linux/OSX
+
+- http://github.com/kellerd/Meetup-FSharp-Primer-Slides
+- http://github.com/kellerd/FsLabTutorial
+- http://github.com/kellerd/TicTacToeProvider
+
+- **https://FSharp.org - Installs for Windows/Linux/OSX**
+
 - For full Visual Studio, install FSharp Power Tools extension
  - https://fsprojects.github.io/VisualFSharpPowerTools/
 - For Visual Studio Code (lightweight free) or Atom, use Ionide extenion. 
     - http://ionide.io/
-- https://fsprojects.github.io
+
+- Community Projects https://fsprojects.github.io
 - FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
 - Community for F# https://C4FSharp.net
-- *FSharp For Fun and Profit https://fsharpforfunandprofit.com *
+- **FSharp For Fun and Profit https://fsharpforfunandprofit.com**
  - Domain driven design https://fsharpforfunandprofit.com/ddd/
  - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
-- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #<lang of choice>
-- (https://sergeytihon.wordpress.com/2014/11/24/f-advent-calendar-in-english-2014/)
-- (https://sergeytihon.wordpress.com/2015/10/25/f-advent-calendar-in-english-2015/)
+- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #`lang of choice`
+- https://sergeytihon.wordpress.com/2014/11/24/f-advent-calendar-in-english-2014/
+- https://sergeytihon.wordpress.com/2015/10/25/f-advent-calendar-in-english-2015/
 - http://fsharpworks.com/survey.html
 - [Phil Trelford Small Basic Parser](http://trelford.com/blog/post/interpreter.aspx)*
 
