@@ -283,30 +283,30 @@ type location = Index of int // Single discriminated union
 type invoke = unit -> unit //Function type
 type arithmetic = Add | Mul | Div | Sub
 (*** define: dsl-2 ***)
-type expr =
+type expression =
     | Literal of value
     | Var of identifier
     | GetAt of location
     | Func of invoke
-    | Neg of expr
-    | Arithmetic of expr * arithmetic * expr
-    | Comparison of expr * comparison * expr
-    | Logical of expr * logical * expr
+    | Neg of expression
+    | Arithmetic of expression * arithmetic * expression
+    | Comparison of expression * comparison * expression
+    | Logical of expression * logical * expression
 (*** define: dsl-3 ***)
 type label = string // Alias
-type assign = Set of identifier * expr
+type assign = Set of identifier * expression
 type instruction =
     | Assign of assign
-    | SetAt of location * expr
-    | PropertySet of string * string * expr
+    | SetAt of location * expression
+    | PropertySet of string * string * expression
     | Action of invoke
-    | For of assign * expr * expr
+    | For of assign * expression * expression
     | EndFor
-    | If of expr
-    | ElseIf of expr
+    | If of expression
+    | ElseIf of expression
     | Else
     | EndIf
-    | While of expr
+    | While of expression
     | EndWhile
     | Sub of identifier
     | EndSub
@@ -759,37 +759,26 @@ let c = factorial a
 #### Q
  
     [lang=q]
-    w:400; h:300; r:150; l:-0.5 0.7 0.5
-    sqrt0:{$[x>0;sqrt x;0]};
-    z:{[x;y;r]sqrt0((r*r)-((x*x)+(y*y)))};
-    is:{[x;y;r]
-    z0:z[x;y;r];
-    s:(x;y;z0)%r;
-    $[z0>0;i:0.5*1+(+/)(s*l);i:0];
-    i};
-    fcn:{[xpx;ypx]
-    x:xpx-w%2;
-    y:ypx-h%2;
-    z1:z[x;y;r];
-    x2:x+190;
-    z2:170-z[x2;y;r];
-    $[(r*r)<((x*x)+(y*y));
-        $[y>-50;i:3#0;i:200 100 50];
-        $[z2>z1;i:3#is[x;y;r]*140;i:3#is[(-1*x2);(-1*y);r]*120]
-    ];
-    "i"$i};
-    \l bmp.q
-    fn:`:demo.bmp;
-    writebmp[w;h;fcn;fn];
----
-
-![Deathstar](http://rosettacode.org/mw/images/8/83/Qdstar.jpg)
-
----
+    {$[0=x mod 15;"FizzBuzz";0=x mod 5;"Buzz";0=x mod 3;"Fizz";string x]} each 1+til 15
 
 ### Bayes' Rule in LaTeX
 
 $ \Pr(A|B)=\frac{\Pr(B|A)\Pr(A)}{\Pr(B|A)\Pr(A)+\Pr(B|\neg A)\Pr(\neg A)} $
+
+***
+
+### How to get started
+#### Resources
+- *https://FSharp.org - Installs for Windows/Linux/OSX*
+ - For full Visual Studio, comes default, install FSharp Power Tools extension
+ - For Visual Studio Code (lightweight free) or Atom, use Ionide extenion. 
+- https://fsprojects.github.io
+- FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
+- Community for F# https://C4FSharp.net
+- **FSharp For Fun and Profit https://fsharpforfunandprofit.com**
+ - [Domain driven design](https://fsharpforfunandprofit.com/ddd/)
+ - [26 Ways to use F# at work](https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/)
+- https://fpchat.com #fsharp-beginners, #fsharp, #anythingElse
 
 *** 
 
@@ -797,20 +786,5 @@ Goodbye
 
 http://github.com/kellerd/Meetup-FSharp-Primer-Slides
 http://github.com/kellerd/FsLabTutorial
-http://github.com/kellerd/TicTacToeProvider
-
-### How to get started
-#### Resources
-- *https://FSharp.org - Installs for Windows/Linux/OSX*
- - For full Visual Studio, install FSharp Power Tools extension
- - For Visual Studio Code (lightweight free) or Atom, use Ionide extenion. 
-- https://fsprojects.github.io
-- FSharp Weekly https://sergeytihon.wordpress.com/category/f-weekly/
-- Community for F# https://C4FSharp.net
-- *FSharp For Fun and Profit https://fsharpforfunandprofit.com *
- - Domain driven design https://fsharpforfunandprofit.com/ddd/
- - 26 Ways to use F# at work https://fsharpforfunandprofit.com/posts/low-risk-ways-to-use-fsharp-at-work/
-- https://fpchat.com #fsharp-beginners, #fsharp, #clojure, #<lang of choice>
-
 
 *)
